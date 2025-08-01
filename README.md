@@ -1,227 +1,265 @@
-# Description
-This is an implementation of the Linux shell in C shell. It supports basic terminal commands and some couple commands. It also uses networking and piping concepts to make the terminal more diverse and robust to commands from the user.
+# Shell in C
 
+## Introduction
 
-## Table of Contents
-- [warp Command](#warp-command)
-- [peek Command](#peek-command)
-- [pastevents Command](#pastevents-command)
-- [proclore Command](#proclore-command)
-- [I/O Redirection](#io-redirection)
-- [Pipes](#pipes)
-- [Redirection along with Pipes](#redirection-along-with-pipes)
-- [activities Command](#activities-command)
-- [ping Command](#ping-command)
-- [fg and bg Commands](#fg-and-bg-commands)
-- [neonate Command](#neonate-command)
-- [iMan Command](#iman-command)
+This project is a custom-built Unix-like shell implemented in C, designed to provide a powerful and efficient command-line interface for users to interact with the operating system. 
+It supports a wide range of essential shell operations, including 
+- executing external programs
+- managing background and foreground processes
+- handling I/O redirection
+ -navigating the file system
+ 
+The shell also incorporates advanced features like 
+- signal handling
+- process control
+- the ability to manage multiple pipelines
 
----
+Making it a versatile tool for both everyday use and complex system tasks.
 
-### warp Command
-**Syntax:**
-```bash
-warp [flags] [directory]
+## Running
+
+### Build and run the shell:
+
 ```
-**Flags:**
-- `.`: Current directory
-- `..`: Parent directory
-- `~`: Home directory
-- `-`: Previous directory
-
-**Description:**
-Changes the shell's working directory. Supports both absolute and relative paths.
-
-**Examples:**
-```bash
-warp test          # Changes to /home/user/test
-warp ../tutorial   # Changes to /home/user/tutorial
-warp ~             # Changes to /home/user
-warp -             # Changes to the previous directory
+make
+./main
 ```
 
----
+## Functionality
 
-### peek Command
-**Syntax:**
-```bash
-peek [flags] [path]
+### `hop` Command
+
+Command -> `hop <path/multiple path/no path>`
+
+The `hop` command changes the directory that the shell is currently in and prints the full path of the working directory after changing. 
+
+#### Special Paths
+- Supports `.`, `..`, `~`, `-`
+
+#### Path Types
+- Supports reletive and absolute paths
+
+#### Assumptions
+- Paths and names are not to contain any whitespace characters.
+- If no argument is present, `hop` should change to the home directory.
+- If more than one argument is provided, `hop` execute sequentially with each argument, from left to right.
+- `hop .`, `hop -`, and `hop ~` all change the previous working directory.
+
+
+### `reveal` Command
+
+Command -> `reveal <flags> <path>`
+
+The `reveal` command lists all files and directories in the specified directories in lexicographic order. By default, it does not show hidden files. The command should support the following flags:
+
+- **`-l`**: Displays extra information about the files.
+- **`-a`**: Displays all files, including hidden files.
+
+#### Special Paths
+- Supports `.`, `..`, `~`, `-`
+
+#### Path Types
+- Supports reletive and absolute paths
+
+#### Color Coding:
+- **Green** for executables
+- **White** for files
+- **Blue** for directories
+
+#### Assumptions
+- If no argument is given, it should reveal the contents of the current working directory.
+- Multiple paths are not given.
+- Print a list of file/folder names separated by newline characters.
+
+### `log` Command
+
+Command -> `log`
+Command -> `log purge`
+Command -> `log execute <index>`
+
+#### **`log`**:
+  - Stores and outputs the last 15 commands entered by the user, including their arguments.
+  - Do not store a command if it is exactly the same as the previously entered command.
+
+#### **`log purge`**:
+  - Clears all commands currently stored in the log.
+
+#### **`log execute <index>`**:
+  - Executes the command at the specified index in the log, with indices ordered from most recent to oldest.
+
+#### Assumptions
+- The `log` command itself or any command containing `log` will not be stored.
+- Erroneous commands are be stored.
+- Command after `log execute` will be stored in the log if it is not the same as the last command.
+- Commands like `hop ..` and `hop    ..` will be considered different
+
+### `proclore` Command
+
+Command -> `proclore <processId>`
+
+The `proclore` command is used to obtain information regarding a specific process. 
+
+- **Process ID (pid)**
+- **Process Status (R/R+/S/S+/Z)**
+- **Process Group**
+- **Virtual Memory Usage**
+- **Executable Path of the Process**
+
+#### Process States:
+- **R/R+**: Running
+- **S/S+**: Sleeping in an interruptible wait
+- **Z**: Zombie
+
+#### Assumptions 
+- If no argument is provided, it prints information about the shell itself.
+
+### `seek` Command
+
+Command -> `seek <flags> <search> <target_directory>`
+
+The `seek` command is used to search for a file or directory within a specified target directory. 
+
+#### Flags:
+
+- **`-d`**: Search only for directories, ignoring files even if the name matches.
+- **`-f`**: Search only for files, ignoring directories even if the name matches.
+- **`-e`**: This flag is effective only when a single file or directory with the specified name is found. If only one file is found, print its path. If only one directory is found, change the current working directory to it. This flag can be used in combination with `-d` and `-f`.
+
+#### Assumptions:
+- If no matching files or directories are found, print `No match found!`
+- If both `-d` and `-f` flags are used together, print `Invalid flags!`
+- If with `-e` the directory lacks execute permission or the file lacks read permission, output `Missing permissions for task!`.
+- The command returns a list of relative paths (from the target directory) for all matching files and directories, with files displayed in green and directories in blue, each separated by a newline character.
+
+### `.myshrc` File
+
+#### Aliases
+
+Format -> `alias <name>=<command>` or `<name>=<command>`
+
+- These aliases are automatically loaded into the shell when it starts and can be used as shortcuts for frequently used commands.
+
+##### Assumptions:
+- `<name>` in aliases are single word command.
+- IO redirection does not work for aliases.
+
+#### Functions
+
+Format -> 
 ```
-**Flags:**
-- `-a`: Show hidden files
-- `-l`: Display extra information
-
-**Description:**
-Lists files and directories in the specified directory. Supports flags for additional details and color-coded output.
-
-**Examples:**
-```bash
-peek test              # Lists files and directories in /home/user/test
-peek -a /usr/bin       # Lists hidden files in /usr/bin
-peek -l ~              # Displays extra information in /home/user
+  <functionName>()
+  {
+    <Whatever Function Does>
+  }
 ```
 
----
+- These functions are automatically loaded into the shell when it starts.
+- Aliases can be used inside functions.
 
-### pastevents Command
-**Syntax:**
-```bash
-pastevents
-pastevents purge
-pastevents execute <index>
+##### Assumptions:
+
+- The curly brackets follow the order shown. Hence the format shown below does not work.
 ```
-**Description:**
-Stores and retrieves the 15 most recent commands. 'purge' clears stored commands. 'execute' runs a command from the history.
+  <functionName>() {
+    <Whatever Function Does>
+  }
+``` 
+- IO redirection does not work for functions.
 
-**Examples:**
-```bash
-pastevents            # Displays the command history
-pastevents purge      # Clears the command history
-pastevents execute 3  # Executes the command at index 3
-```
+### IO Redirection
 
----
+Format -> `<Command> < <inputFleName> > <outputFleName>` OR `<Command> < <inputFleName> >> <appendFileName>`
 
-### proclore Command
-**Syntax:**
-```bash
-proclore [pid]
-```
-**Description:**
-Provides information about a process, including PID, status, process group, virtual memory, and executable path.
+#### Types:
 
-**Examples:**
-```bash
-proclore             # Displays information about the shell process
-proclore 123         # Displays information about the process with PID 123
-```
+- `>`: Redirects output to the specified file. If the file exists, it is overwritten; otherwise, it is created with permissions `0644`.
+- `>>`: Appends output to the specified file if it exists. If it does not exist, the file is created with permissions `0644`.
+- `<`: Redirects input from the specified file. An error message, `No such input file found!`, is displayed if the input file does not exist.
 
----
+#### Redirection Combinations:
 
-### I/O Redirection
-**Syntax:**
-```bash
-command > output_file
-command >> output_file
-command < input_file
-```
-**Description:**
-Redirects command output to a file using `>`, appends with `>>`, and takes input from a file using `<`.
+- `>` and `<`: Can be used together to redirect both input and output.
+- `>>` and `<`: Can also be used together for appending output while reading from a file.
 
-**Examples:**
-```bash
-echo "Hello" > greeting.txt   # Writes "Hello" to greeting.txt
-wc < textfile.txt            # Counts words from textfile.txt
-```
+#### Assumptions:
 
----
+- Not handled multiple Inputs or Outputs.
+- The name following `<`, `>` or `>>` is considered as the filename.
+- Commands like `< <inputFleName> <Command>` also works as expected (as they work in shell).
 
 ### Pipes
-**Syntax:**
-```bash
-command1 | command2 | command3
-```
-**Description:**
-Passes output from `command1` as input to `command2`, and so on.
 
-**Examples:**
-```bash
-echo "Lorem Ipsum" | wc | sed 's/ //g'   # Processes output through multiple commands
-```
+Format -> `<Command1> | <Command2>`
 
----
+- `|`: Used to pass the output from the command on the left to the input of the command on the right.
+- Commands are executed sequentially from left to right when pipes are used.
 
-### Redirection along with Pipes
-**Syntax:**
-```bash
-command1 | command2 > output_file
-command1 < input_file | command2
-```
-**Description:**
-Combines I/O redirection with pipes for more advanced command sequences.
+#### Error Handling:
 
-**Examples:**
-```bash
-cat file.txt | wc > stats.txt   # Counts words in file.txt and writes to stats.txt
-```
+- Invalid use of pipe: An error message `Invalid use of pipe` is displayed if:
+-   There is nothing on the left or right of a pipe (e.g., `| cmd` or `cmd |`).
+-   There are multiple consecutive pipes (e.g., `cmd || cmd`).
 
----
+#### Assumptions:
+- IO Redirection works only with `First Command for Input` and `Last Command for Output`.
+- BackGround works only for Last Command.
 
-### activities Command
-**Syntax:**
-```bash
-activities
-```
-**Description:**
-Prints a list of all processes spawned by the shell, including command name, PID, and state.
+### `activities` Command
 
-**Examples:**
-```bash
-activities   # Displays information about currently running processes
-```
+Format -> `activities`
 
----
+Output -> `<pid> : <command name> - <State>`
 
-### ping Command
-**Syntax:**
-```bash
-ping <pid> <signal_number>
-```
-**Description:**
-Sends signals to processes based on PID and signal number.
+- **Command Name**
+- **Process ID (pid)**
+- **State**: Whether the process is running or stopped
 
-**Examples:**
-```bash
-ping 123 9    # Sends SIGKILL signal to process with PID 123
-ping 456 41   # Sends signal 9 to process with PID 456
-```
+- This feature allows you to view a list of all the processes currently running that were spawned by your shell.
 
----
+### Signal Handling
 
-### fg and bg Commands
-**Syntax:**
-```bash
-fg <pid>
-bg <pid>
-```
-**Description:**
-`fg` brings a background process to the foreground, and `bg` changes a stopped background process to running.
+Format -> `ping <pid> <signal_number>`
 
-**Examples:**
-```bash
-fg 789    # Brings the background process with PID 789 to the foreground
-bg 789    # Changes the state of process with PID 789 to running (in the background)
-```
+- `<pid>`: The process ID to which the signal is to be sent.
+- `<signal_number>`: The signal number to send.
 
----
+- The `ping` command is used to send signals to processes based on their `pid`.
 
-### neonate Command
-**Syntax:**
-```bash
-neonate -n <time_arg>
-```
-**Description:**
-Prints the Process-ID of the most recently created process every `<time_arg>` seconds until the key 'x' is pressed.
+#### Keyboard Input Signal Handling
 
-**Examples:**
-```bash
-neonate -n 4   # Prints the PID every 4 seconds until 'x' is pressed
-```
+- `Ctrl - C`: Sends the SIGINT signal to interrupt any currently running foreground process. If no foreground process is running, it has no effect.
+- `Ctrl - D`: Logs out of the shell after killing all background processes. This action does not affect the terminal.
+- `Ctrl - Z`: Pushes the currently running foreground process (if any) to the background and changes its state to "Stopped". If no foreground process is running, it has no effect.
 
----
+##### Assumptions:
 
-### iMan Command
-**Syntax:**
-```bash
-iMan <command_name>
-```
-**Description:**
-Fetches man pages from http://man.he.net/ for the given command.
+- `Ctrl - D` does not work if `<Something typed><Ctrl - D>` is given.
 
-**Examples:**
-```bash
-iMan sleep            # Retrieves the man page for the 'sleep' command
-iMan invalid_command  # Displays an error for a non-existing command
-```
+### `fg` and `bg` Commands
 
-This detailed documentation provides users with clear information on each command's syntax, available flags, and usage examples. Include these details in your README file for user reference.
+Format -> `fg <pid>` and `bg <pid>`
+
+- The `fg` command brings a specified background process (either running or stopped) to the foreground, giving it control of the terminal.
+- The `bg` command changes the state of a stopped background process to "running" (in the background).
+
+### `neonate` Command
+
+Format -> `neonate -n <timeInterval>`
+
+- The neonate command prints the process ID (PID) of the most recently created process on the system at regular intervals, specified by the user.
+- The command runs until the user presses the 'x' key to stop it.
+- The command retrieves the most recent process ID from the `/proc/loadavg` file
+
+# Assumptions:
+
+- `Ctrl - C`, `Ctrl - D` and `Ctrl - Z` doesnot work while `neonate` is running.
+
+### `iMan` Command
+
+Format -> `iMan <CommandName>`
+
+- The `iMan` command fetches man pages from the internet using sockets and outputs the content to the terminal (default website : http://man.he.net/).
+
+#### Assumptions:
+
+- If there is more than one argument provided, only the first argument is considered, and the rest are ignored (e.g., `iMan sleep extra` is treated as `iMan sleep`).
