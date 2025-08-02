@@ -2,14 +2,16 @@
 
 ## Introduction
 
-This project is a custom-built Unix-like shell implemented in C, designed to provide a powerful and efficient command-line interface for users to interact with the operating system. 
-It supports a wide range of essential shell operations, including 
+This project is a custom-built Unix-like shell implemented in C, designed to provide a powerful and efficient command-line interface for users to interact with the operating system.
+It supports a wide range of essential shell operations, including
+
 - executing external programs
 - managing background and foreground processes
 - handling I/O redirection
- -navigating the file system
- 
-The shell also incorporates advanced features like 
+  -navigating the file system
+
+The shell also incorporates advanced features like
+
 - signal handling
 - process control
 - the ability to manage multiple pipelines
@@ -20,7 +22,7 @@ Making it a versatile tool for both everyday use and complex system tasks.
 
 ### Build and run the shell:
 
-```
+```bash
 make
 ./main
 ```
@@ -31,20 +33,22 @@ make
 
 Command -> `hop <path/multiple path/no path>`
 
-The `hop` command changes the directory that the shell is currently in and prints the full path of the working directory after changing. 
+The `hop` command changes the directory that the shell is currently in and prints the full path of the working directory after changing.
 
 #### Special Paths
+
 - Supports `.`, `..`, `~`, `-`
 
 #### Path Types
+
 - Supports reletive and absolute paths
 
 #### Assumptions
+
 - Paths and names are not to contain any whitespace characters.
 - If no argument is present, `hop` should change to the home directory.
 - If more than one argument is provided, `hop` execute sequentially with each argument, from left to right.
 - `hop .`, `hop -`, and `hop ~` all change the previous working directory.
-
 
 ### `reveal` Command
 
@@ -56,17 +60,21 @@ The `reveal` command lists all files and directories in the specified directorie
 - **`-a`**: Displays all files, including hidden files.
 
 #### Special Paths
+
 - Supports `.`, `..`, `~`, `-`
 
 #### Path Types
+
 - Supports reletive and absolute paths
 
 #### Color Coding:
+
 - **Green** for executables
 - **White** for files
 - **Blue** for directories
 
 #### Assumptions
+
 - If no argument is given, it should reveal the contents of the current working directory.
 - Multiple paths are not given.
 - Print a list of file/folder names separated by newline characters.
@@ -78,16 +86,20 @@ Command -> `log purge`
 Command -> `log execute <index>`
 
 #### **`log`**:
-  - Stores and outputs the last 15 commands entered by the user, including their arguments.
-  - Do not store a command if it is exactly the same as the previously entered command.
+
+- Stores and outputs the last 15 commands entered by the user, including their arguments.
+- Do not store a command if it is exactly the same as the previously entered command.
 
 #### **`log purge`**:
-  - Clears all commands currently stored in the log.
+
+- Clears all commands currently stored in the log.
 
 #### **`log execute <index>`**:
-  - Executes the command at the specified index in the log, with indices ordered from most recent to oldest.
+
+- Executes the command at the specified index in the log, with indices ordered from most recent to oldest.
 
 #### Assumptions
+
 - The `log` command itself or any command containing `log` will not be stored.
 - Erroneous commands are be stored.
 - Command after `log execute` will be stored in the log if it is not the same as the last command.
@@ -97,7 +109,7 @@ Command -> `log execute <index>`
 
 Command -> `proclore <processId>`
 
-The `proclore` command is used to obtain information regarding a specific process. 
+The `proclore` command is used to obtain information regarding a specific process.
 
 - **Process ID (pid)**
 - **Process Status (R/R+/S/S+/Z)**
@@ -106,18 +118,20 @@ The `proclore` command is used to obtain information regarding a specific proces
 - **Executable Path of the Process**
 
 #### Process States:
+
 - **R/R+**: Running
 - **S/S+**: Sleeping in an interruptible wait
 - **Z**: Zombie
 
-#### Assumptions 
+#### Assumptions
+
 - If no argument is provided, it prints information about the shell itself.
 
 ### `seek` Command
 
 Command -> `seek <flags> <search> <target_directory>`
 
-The `seek` command is used to search for a file or directory within a specified target directory. 
+The `seek` command is used to search for a file or directory within a specified target directory.
 
 #### Flags:
 
@@ -126,6 +140,7 @@ The `seek` command is used to search for a file or directory within a specified 
 - **`-e`**: This flag is effective only when a single file or directory with the specified name is found. If only one file is found, print its path. If only one directory is found, change the current working directory to it. This flag can be used in combination with `-d` and `-f`.
 
 #### Assumptions:
+
 - If no matching files or directories are found, print `No match found!`
 - If both `-d` and `-f` flags are used together, print `Invalid flags!`
 - If with `-e` the directory lacks execute permission or the file lacks read permission, output `Missing permissions for task!`.
@@ -140,13 +155,15 @@ Format -> `alias <name>=<command>` or `<name>=<command>`
 - These aliases are automatically loaded into the shell when it starts and can be used as shortcuts for frequently used commands.
 
 ##### Assumptions:
+
 - `<name>` in aliases are single word command.
 - IO redirection does not work for aliases.
 
 #### Functions
 
-Format -> 
-```
+Format ->
+
+```bash
   <functionName>()
   {
     <Whatever Function Does>
@@ -159,11 +176,13 @@ Format ->
 ##### Assumptions:
 
 - The curly brackets follow the order shown. Hence the format shown below does not work.
-```
+
+```bash
   <functionName>() {
     <Whatever Function Does>
   }
-``` 
+```
+
 - IO redirection does not work for functions.
 
 ### IO Redirection
@@ -197,10 +216,11 @@ Format -> `<Command1> | <Command2>`
 #### Error Handling:
 
 - Invalid use of pipe: An error message `Invalid use of pipe` is displayed if:
--   There is nothing on the left or right of a pipe (e.g., `| cmd` or `cmd |`).
--   There are multiple consecutive pipes (e.g., `cmd || cmd`).
+- There is nothing on the left or right of a pipe (e.g., `| cmd` or `cmd |`).
+- There are multiple consecutive pipes (e.g., `cmd || cmd`).
 
 #### Assumptions:
+
 - IO Redirection works only with `First Command for Input` and `Last Command for Output`.
 - BackGround works only for Last Command.
 
@@ -254,12 +274,12 @@ Format -> `neonate -n <timeInterval>`
 
 - `Ctrl - C`, `Ctrl - D` and `Ctrl - Z` doesnot work while `neonate` is running.
 
-### `iMan` Command
+## `iMan` Command
 
 Format -> `iMan <CommandName>`
 
 - The `iMan` command fetches man pages from the internet using sockets and outputs the content to the terminal (default website : http://man.he.net/).
 
-#### Assumptions:
+### Assumptions:
 
 - If there is more than one argument provided, only the first argument is considered, and the rest are ignored (e.g., `iMan sleep extra` is treated as `iMan sleep`).
