@@ -1,31 +1,23 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<unistd.h>
-#include<netdb.h>
-#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-int main(int argc, char* argv[]){
+int main() 
+{
     char input[1024];
-    scanf("%[^\n]%*c",input);
-    char *token = strtok(input, " \t ");
-    char **echo;
-    echo = malloc(1000 * sizeof(char*));
-    int itr = 0;
-    while(token != NULL){ 
-        echo[itr] = malloc((1000)*sizeof(char));
-        echo[itr] = token;
-        itr++;
-        token = strtok(NULL," \t ");
-    }
+    scanf("%[^\n]%*c", input);
 
-    for(int i=0;i<itr;i++){
-        if(i != itr-1)
-            printf("%s ",echo[i]);
-        else
-            printf("%s\n",echo[i]);
+    char *save1;
+    char *token = strtok_r(input, " \t",&save1);
+    char *echo[1000];
+    int itr = 0;
+
+    while (token != NULL) 
+    {
+        echo[itr++] = token;
+        token = strtok_r(NULL, " \t", &save1);
     }
+    for (int i = 0; i < itr; i++) printf("%s%s", echo[i], (i == itr - 1) ? "\n" : " ");
 
     return 0;
 }
-

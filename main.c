@@ -7,9 +7,11 @@
 
 char* getCurrentDirectory(char* input,char* home_directory, char* current_directory, char* prev_directory);
 
-void remove_initial_substring(char *str, const char *substr) {
+void remove_initial_substring(char *str, const char *substr) 
+{
     char *match = strstr(str, substr); 
-    if (match != NULL) {
+    if (match != NULL) 
+    {
         memmove(str, "~", 1); // Add tilde (~) to the beginning
         memmove(str + 1, match + strlen(substr), strlen(match + strlen(substr)) + 1); // Remove the substring and shift the remaining characters
     }
@@ -30,7 +32,8 @@ int main(){
     current_directory = (char *)malloc(strlen(home_directory) * 100);
     prev_directory = (char *)malloc(strlen(home_directory) * 100);
     char * current_directory_visible = (char *) malloc(strlen(home_directory) * 100);
-    if (current_directory == NULL || prev_directory == NULL) {
+    if (current_directory == NULL || prev_directory == NULL) 
+    {
         printf("Memory allocation failed.\n");
         return 1;
     }
@@ -41,11 +44,13 @@ int main(){
     strcpy(prev_directory,home_directory);
     printf("<%s@%s:%s> ",username,hostname,current_directory_visible);
 
-    while(1){
+    while(1)
+    {
         char input[1024];
         char c;
         int i = 0;
-        while((c = getchar()) != '\n'){
+        while((c = getchar()) != '\n')
+        {
             input[i++] = c;
         }
         input[i]='\0';
@@ -54,32 +59,34 @@ int main(){
         char **user_input;
         user_input = malloc(1000 * sizeof(char*));
         int itr = 0;
-        while(token != NULL){ 
+        while(token != NULL)
+        { 
             user_input[itr] = malloc((1000)*sizeof(char));
             user_input[itr] = token;
             token = strtok(NULL," \t ");
             itr++;
         }
 
-        if(i==0 && c=='\n'){
+        if(i==0 && c=='\n')
+        {
             printf("<%s@%s:%s> ",username,hostname,current_directory_visible);
         }
-        else if(strcmp(user_input[0],"echo") == 0){
-            for(int i=1;i<itr;i++){
-                if(i != itr-1)
-                    printf("%s ",user_input[i]);
-                else
-                    printf("%s\n",user_input[i]);
+        else if(strcmp(user_input[0],"echo") == 0)
+        {
+            for(int i=1;i<itr;i++)
+            {
+                if(i != itr-1) printf("%s ",user_input[i]);
+                else printf("%s\n",user_input[i]);
             }
-            if(itr == 1){
-                printf("\n");
-            }
+            if(itr == 1) printf("\n");
             strcpy(current_directory_visible,current_directory);
             remove_initial_substring(current_directory_visible,home_directory);
             printf("<%s@%s:%s> ",username,hostname,current_directory_visible);
         }
-        else if(strcmp(user_input[0],"pwd") == 0){
-            if(itr == 1){
+        else if(strcmp(user_input[0],"pwd") == 0)
+        {
+            if(itr == 1)
+            {
                 char cwd[FILENAME_MAX];
                 getcwd(cwd, sizeof(cwd));
                 printf("%s\n",current_directory);
@@ -87,36 +94,37 @@ int main(){
                 remove_initial_substring(current_directory_visible,home_directory);
                 printf("<%s@%s:%s> ",username,hostname,current_directory_visible);
             }
-            else{
+            else
+            {
                 printf("bash: cd: too many arguments\n");
                 printf("<%s@%s:%s> ",username,hostname,current_directory_visible);   
             }
         }
-        else if(strcmp(user_input[0],"cd") == 0){
-            // printf("%d\n",itr);
-            if(itr == 1){
-                printf("<%s@%s:~> ",username,hostname);
-            }
-            else if(itr == 2){
+        else if(strcmp(user_input[0],"cd") == 0)
+        {
+            if(itr == 1) printf("<%s@%s:~> ",username,hostname);
+            else if(itr == 2)
+            {
                 current_directory = getCurrentDirectory(user_input[1],home_directory,current_directory,prev_directory);
-                if(strcmp(current_directory,home_directory) == 0)
-                    printf("<%s@%s:~> ",username,hostname);
-                else{
+                if(strcmp(current_directory,home_directory) == 0) printf("<%s@%s:~> ",username,hostname);
+                else
+                {
                     strcpy(current_directory_visible,current_directory);
                     remove_initial_substring(current_directory_visible,home_directory);
                     printf("<%s@%s:%s> ",username,hostname,current_directory_visible);
                 }
             }
-            else{
+            else
+            {
                 printf("bash: cd: too many arguments\n");
                 printf("<%s@%s:%s> ",username,hostname,current_directory_visible);
             }
         }
-        else{
+        else
+        {
             printf("Command '%s' not found\n",user_input[0]);
             printf("<%s@%s:%s> ",username,hostname,current_directory_visible);
         }
     }
-
     return 0;
 }
