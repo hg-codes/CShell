@@ -1,0 +1,15 @@
+cd ..
+e
+cd ..
+cd -
+ce
+try
+try > out
+ce
+sleep 1 & sleep 2 &
+cd
+proclore | wc &
+proclore | wc
+e
+./main
+quit
